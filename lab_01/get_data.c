@@ -7,7 +7,7 @@
 
 double func(double x)
 {
-  return (sin((PI*x)/6));
+  return (pow(x-1,2) - 0.5*exp(x));
 }
 
 void get_data(struct table *Table, int n_tables)
@@ -18,6 +18,19 @@ void get_data(struct table *Table, int n_tables)
   {
     (Table+i)->x = x;
     (Table+i)->y = func(x);
+    x = x + 1.0;
+  }
+  
+}
+
+void get_data_y(struct table *Table, int n_tables)
+{
+  double x = 0.0;
+  
+  for (int i = 0; i<n_tables; i++)
+  {
+    (Table+i)->x = func(x);
+    (Table+i)->y = x;
     x = x + 1.0;
   }
   
