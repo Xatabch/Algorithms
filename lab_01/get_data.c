@@ -7,7 +7,7 @@
 
 double func(double x)
 {
-  return (pow(x-1,2) - 0.5*exp(x));
+  return (pow(x, 3) - 5);
 }
 
 void get_data(struct table *Table, int n_tables)
@@ -16,8 +16,8 @@ void get_data(struct table *Table, int n_tables)
   
   for (int i = 0; i<n_tables; i++)
   {
-    (Table+i)->x = x;
-    (Table+i)->y = func(x);
+    Table[i].x = x;
+    Table[i].y = func(x);
     x = x + 1.0;
   }
   
@@ -25,7 +25,7 @@ void get_data(struct table *Table, int n_tables)
 
 void get_data_y(struct table *Table, int n_tables)
 {
-  double x = 0.0;
+  double x = -10.0;
   
   for (int i = 0; i<n_tables; i++)
   {

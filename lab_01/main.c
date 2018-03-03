@@ -9,29 +9,49 @@
 
 int main(void)
 {	
-	// 1-я часть задания
+	// 1-я часть задания (Прямой)
 	int n_tables = 20;
 	struct table *Table = malloc(n_tables * sizeof(struct table));
 	struct table *Table_reverse = malloc(n_tables * sizeof(struct table));
 	double refinement;
-  
-  	get_data(Table, n_tables);
-    refinement = newtown_interpolation(Table, n_tables, 3, 0.2);
+  double x;
+  int n;
 
-    // Прямой
-    printf("Refinement: %f\n", refinement);
-    printf("Ethalone: %f\n", pow(0.2-1,2) - 0.5*exp(0.2));
+  get_data(Table, n_tables);
+
+  printf(" № | X         | Y\n");
+  printf("----------------------------\n");
+  for (int i = 0; i<n_tables; i++)
+    printf("%2d |%10f |%12f\n", i, Table[i].x, Table[i].y);
+  printf("----------------------------\n\n");
+
+  printf("Введите x: ");
+  scanf("%lf", &x);
+  printf("Введите степень полинома n: ");
+  scanf("%d", &n);
+  printf("\n");
+
+  refinement = newtown_interpolation(Table, n_tables, n, x);
+
+  printf("Refinement: %f\n", refinement);
+  printf("Ethalone: %f\n\n", func(x));
 
 
-    get_data_y(Table_reverse, n_tables);
-    refinement = newtown_interpolation(Table_reverse, n_tables, 6, 0.029);
+  // 2-я часть задания (Обратный)
+  get_data_y(Table_reverse, n_tables);
 
-    // Обратный
-    printf("\nRefinement: %f\n", refinement);
-    printf("Ethalone: %f\n", 0.2);
+  printf(" № | X           | Y\n");
+  printf("----------------------------\n");
+  for (int i = 0; i<n_tables; i++)
+     printf("%2d |%12f |%10f\n", i, Table_reverse[i].x, Table_reverse[i].y);
+  printf("----------------------------\n\n");
+
+  refinement = newtown_interpolation(Table_reverse, n_tables, n, 0.0);
+
+  printf("Refinement: %f\n", refinement);
     
-  	free(Table);
-  	free(Table_reverse);
+  free(Table);
+  free(Table_reverse);
 
 
 	return 0;
