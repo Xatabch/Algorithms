@@ -40,7 +40,7 @@ int main(void)
   // 2-я часть задания (Обратный)
   get_data_y(Table_reverse, n_tables);
 
-  printf(" № | X           | Y\n");
+  printf(" № | Y           | X\n");
   printf("----------------------------\n");
   for (int i = 0; i<n_tables; i++)
      printf("%2d |%12f |%10f\n", i, Table_reverse[i].x, Table_reverse[i].y);

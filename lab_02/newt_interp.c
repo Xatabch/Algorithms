@@ -82,6 +82,44 @@ double newtown_interpolation(struct table *Table, int n_tables, int n, double x)
 	int b = 0; //конец отрезка
 	double array[n+1]; // массив для вычисления 'коэффицентов'' y 
 	int bias = 0; // расстояние от i до конца 
+	//double difference = 0; // разница между xi и xn-ым
+	int count = n; // счетчик уменьшения массива
+	double refinement = 0; // результирующее уточнение
+	double differences_x = 1; // разница x для уточнения
+	double xx[n+1];
+
+
+	find_x_place(x, &a, &b, Table, n_tables, n); // нахожу границы отрезка
+
+	refinement = Table[a].y;
+
+  	for (int i = 0; i<(n+1); i++)
+  	{
+    	array[i] = Table[a+i].y;
+    	xx[i] = Table[a+i].x;
+  	}
+
+  	for (int i = 0; i<n; i++)
+  	{
+  		differences_x *= (x - xx[i]);
+    	bias += 1;
+    	
+    	for (int j = 0; j<count; j++)
+      		array[j] = (array[j] - array[j+1])/(xx[j] - xx[j + bias]);
+    	
+    	refinement += differences_x * array[0];
+    	count -= 1;    		
+  	}
+
+	return refinement;
+}
+
+/*double newtown_interpolation(struct table *Table, int n_tables, int n, double x)
+{
+	int a = 0; //начало отрезка
+	int b = 0; //конец отрезка
+	double array[n+1]; // массив для вычисления 'коэффицентов'' y 
+	int bias = 0; // расстояние от i до конца 
 	int difference = 0; // разница между xi и xn-ым
 	int count = n+1; // счетчик уменьшения массива
 	double refinement = 0; // результирующее уточнение
@@ -111,4 +149,4 @@ double newtown_interpolation(struct table *Table, int n_tables, int n, double x)
   	}
 
 	return refinement;
-}
+}*/
