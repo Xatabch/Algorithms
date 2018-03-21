@@ -9,9 +9,9 @@ int main(void)
 {
 	int n_tables = 20;
   struct table *Table = malloc(n_tables * sizeof(struct table));
-  double refinement;
+  double refinement = 0;
+  int error = 1;
   double x;
-  int n;
 
   get_data(Table, n_tables);
 
@@ -21,16 +21,17 @@ int main(void)
     	printf("%2d |%10f |%12f\n", i, Table[i].x, Table[i].y);
   	printf("----------------------------\n\n");
 
-  	printf("Введите x: ");
+  	printf("Enter x: ");
   	scanf("%lf", &x);
-  	printf("Введите количество сплайнов N в сетке : ");
-  	scanf("%d", &n);
-  	printf("\n");
 
-  	refinement = cubic_spline(Table, n, x);
-
-  	printf("Refinement: %f\n", refinement);
-  	printf("Ethalone: %f\n\n", func(x));
+  	error = cubic_spline(Table, n_tables, x, &refinement);
+    if(!error)
+    {
+  	    printf("Refinement: %f\n", refinement);
+  	    printf("Ethalone: %f\n\n", func(x));
+    }
+    else
+      printf("Error\n");
 
   	free(Table);
 

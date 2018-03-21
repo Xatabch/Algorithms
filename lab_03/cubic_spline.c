@@ -1,90 +1,107 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 
 #include "main.h"
 
-
-double cubic_spline(struct table *Table, int n, double x)
+int x_position(struct table *Table, double x, int n)
 {
-	struct spline_tuple *splines = malloc(n * sizeof(double));
+	if((Table[0].x <= Table[n-1].x) && x < Table[0].x)
+		return -1;
 
-	for (int i = 0; i<n; i++)
+	int position = 0;
+	for(int i = 1; i<(n+1); i++)
 	{
-		splines[i].x = Table[i].x;
-		splines[i].a = Table[i].y;
-	}
-	splines[0].c = 0; // наша задача отыскать все c[i] а здесь ноль потому что по условию начальные
-					  // коэф равны 0
-
-
-// 	struct spline_tuple
-// {
-// 	double a, b, c, d, x;
-// };
-
-	// найдем все alph и bet методом прямой прогонки
-	double *alpha = malloc((n-1) * sizeof(double));
-	double *beta = malloc((n-1) * sizeof(double));
-
-	double A, B, C, F, h_i, h_i1, z;  // это как в общем линейном уравнении Ai*yi-1 - Bi*yi + Di*yi+1 = -Fi
-									 // при этом yi = Di/(Bi - Ai*alphai)*yi+1 + Fi+Ai*betai/(Bi - Ai*alphai)
-									// alphai+1 = Di/(Bi - Ai*alphai) betai+1 = Fi + Ai*betai/(Bi - Ai*alphai)
-	alpha[0] = beta[0] = 0; // начальная кофигурация alpha[0] и beta[0]
-
-	for(int i = 1; i<(n-1); i++)
-	{
-		h_i = Table[i].x - Table[i-1].x; h_i1 = Table[i+1].x - Table[i].x; // рассмотрим hi = x[i] - x[i-1], hi1 = x[i+1] - x[i]
-																		  // это предыдущий и поледующий шаги
-
-		A = h_i; // коэффициент A в линейке равен h_i (?)
-		C = 2 * (h_i + h_i1); // коэффициент B в линейке
-		B = h_i1; // Коэффициент D в линейке
-		F = 6 * ((Table[i+1].y - Table[i].y)/h_i1 - (Table[i].y - Table[i-1].y)/h_i); 
-		z = (A * alpha[i-1] + C);// делители у alpha и beta
-		alpha[i] = -B/z;
-		beta[i] = (F - A * beta[i-1])/z;
+		if((Table[i-1].x <= x && Table[i].x > x) || (Table[i-1].x >= x && Table[i].x < x))
+			break;
+		position += 1;
 	}
 
+	return position;
+}
 
-	//нахождение решения - обратный ход метода прохода
+int cubic_spline(struct table *Table, int n, double x, double *result)
+{
+	int code = 0;
+	int position = x_position(Table, x, n); // return x position
+	if(position < 0 || position >=n)
+		return 1;
 
-	for(int i = (n - 2); i>0; i--)
+	position += 1;
+
+	//coefficients
+	double *Ca = calloc((n+2), sizeof(double));
+	double *Cb = calloc((n+2), sizeof(double));
+	double *Cc = calloc((n+2), sizeof(double));
+	double *Cd = calloc((n+2), sizeof(double));
+
+	//steps
+	double *h = calloc((n+2), sizeof(double));
+
+	//coefficients for method "progonka"
+	double *A = calloc((n+2), sizeof(double));
+	double *B = calloc((n+2), sizeof(double));
+	double *D = calloc((n+2), sizeof(double));
+	double *F = calloc((n+2), sizeof(double));
+
+	double *Xi = calloc((n+2), sizeof(double));
+	double *Eta = calloc((n+2), sizeof(double));
+
+	//calculate array of steps
+	for(int i = 1; i<=(n+1); i++)
+		h[i] = Table[i].x - Table[i-1].x;
+
+	//coefficients a = yi
+	for(int i = 1; i<=(n+1); i++)
+		Ca[i] = Table[i-1].y;
+	//coefficients c[0] and c[n+1] = 0 (borders)
+	//Xi[1] and Eta[1] = 0 because ^
+	Cc[1] = Cc[n+1] = 0;
+	Xi[2] = Eta[2] = 0;
+
+	for(int i = 2; i<=(n+1); i++)
 	{
-		splines[i].c = alpha[i] * splines[i+1].c + beta[i];
+		A[i] = h[i-1];
+		B[i] = -2*(h[i-1] + h[i]);
+		D[i] = h[i];
+		F[i] = -3*((Table[i].y - Table[i-1].y)/h[i] - (Table[i-1].y - Table[i-2].y)/h[i-1]);
 	}
 
-	//по известным коэфф c[i] находим значения b[i] и d[i]
-
-	for (int i = n-1; i>0; i--)
+	//calculate Xi and Eta (straight run)
+	for(int i = 2; i<=(n+1); i++)
 	{
-		h_i = Table[i].x - Table[i-1].x;
-		splines[i].d = (splines[i].c - splines[i-1].c)/h_i;
-
-		splines[i].b = h_i * (2*splines[i].c + splines[i-1].c)/6 + (Table[i].y - Table[i-1].y)/h_i;
+		Xi[i+1] = D[i] / (B[i] - A[i]*Xi[i]);
+		Eta[i+1] = (A[i] * Eta[i] + F[i]) / (B[i] - A[i]*Xi[i]);
 	}
 
-	struct spline_tuple *s;
+    //going backward (calculating c)
+    for(int i = 1; i>=n; i--)
+        Cc[i] = Xi[i+1]*Cc[i+1] + Eta[i+1];
 
-	if(x <= splines[0].x)
-		s = splines + 1;
-	else if (x >= splines[n-1].x)
-		s = splines + n -1;
-	else
+    //calculating b and d
+	for(int i = n; i>=1; i--)
 	{
-		int i = 0, j = n - 1;
-		int k;
-
-		while(i + 1 < j)
-		{
-			k = i + (j - i)/2;
-			if(x <= splines[k].x)
-				j = k;
-			else
-				i = k;
-		}
-		s = splines + j;
+		Cb[i] = (Table[i].y-Table[i-1].y)/h[i] - h[i]/3 * (2*Cc[i] + Cc[i+1]);
+		Cd[i] = (Cc[i+1] - Cc[i])/(3*h[i]);
 	}
 
-	double dx = (x - s->x);
-	return (s->a + (s->b + (s->c/2 + s->d * dx/6) * dx) * dx);
+	//result
+	(*result) = Ca[position] + Cb[position] * (x - Table[position-1].x) + 
+	Cc[position]*(x - Table[position-1].x)*(x - Table[position-1].x) + 
+	Cd[position]*(x-Table[position-1].x)*(x-Table[position-1].x)*(x-Table[position-1].x);
+
+	//free memory
+	free(Ca);
+	free(Cb);
+	free(Cc);
+	free(Cd);
+	free(h);
+	free(A);
+	free(B);
+	free(D);
+	free(F);
+	free(Xi);
+	free(Eta);
+
+	return code;
 }
