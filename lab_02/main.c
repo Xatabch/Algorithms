@@ -61,7 +61,7 @@ int main(void)
 
   	refinement = newtown_interpolation(Table_z, n_tables, n, y);
 
-  	printf("refinement: %lf\n\n", refinement);
+  	printf("refinement: %lf\n", refinement);
 
   	printf("real_func: %lf\n", func(x, y));
 

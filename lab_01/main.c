@@ -10,7 +10,7 @@
 int main(void)
 {	
 	// 1-я часть задания (Прямой)
-	int n_tables = 20;
+	int n_tables = 100;
 	struct table *Table = malloc(n_tables * sizeof(struct table));
 	struct table *Table_reverse = malloc(n_tables * sizeof(struct table));
 	double refinement;
