@@ -7,7 +7,7 @@
 
 double func(double x)
 {
-  return (-atan(x-1.7));
+  return (log(x+1));
 }
 
 void get_data(struct table *Table, int n_tables)

@@ -75,7 +75,7 @@ int cubic_spline(struct table *Table, int n, double x, double *result)
 	}
 
     //going backward (calculating c)
-    for(int i = 1; i>=n; i--)
+    for(int i = 1; i<=n; i++)
         Cc[i] = Xi[i+1]*Cc[i+1] + Eta[i+1];
 
     //calculating b and d
@@ -89,6 +89,9 @@ int cubic_spline(struct table *Table, int n, double x, double *result)
 	(*result) = Ca[position] + Cb[position] * (x - Table[position-1].x) + 
 	Cc[position]*(x - Table[position-1].x)*(x - Table[position-1].x) + 
 	Cd[position]*(x-Table[position-1].x)*(x-Table[position-1].x)*(x-Table[position-1].x);
+
+	printf("Коэффициенты: \n");
+	printf("A: %lf\nB: %lf\nC: %lf\nD: %lf\n", Ca[position], Cb[position], Cc[position], Cd[position]);
 
 	//free memory
 	free(Ca);
