@@ -1,9 +1,10 @@
 from nonlinear_equation import *
+import numpy
 
 create = nolin_eq(15, 8000)
 
-print("Korni: ")
+create.print_values()
 
-x = create.half_division()
+create.refinement()
 
-print(x)
+
