@@ -1,4 +1,3 @@
-from numpy import *
 
 # Односторонняя производная (y(i+1)-y(i))/(x(i+1)-x(i)) или y(i+1)-y(i)/H
 def one_sided(table, h):
@@ -58,14 +57,14 @@ def alig(table, h):
     n_tab = [[],[],[],[]]
 
     for i in range(len(table[0])):
-        n_tab[0].append(table[0][i])
-        n_tab[1].append(log(table[1][i]))
+        n_tab[0].append(1/table[0][i])
+        n_tab[1].append((1/table[1][i]))
 
     n_tab = central(n_tab, h)
     table[6].append(None)
     for i in range(1, len(table[0]) - 1):
         if table[0][i] != 0:
-            table[6].append(n_tab[3][i] * table[1][i])
+            table[6].append(n_tab[3][i] * (table[1][i]**2/table[0][i]**2))
         else:
             table[6].append(None)
     table[6].append(None)

@@ -1,9 +1,8 @@
 import algorithms
-from math import *
 from prettytable import PrettyTable
 
 def f(x):
-    return exp(x)
+    return x/(1+3*x)
 
 def table_x_y(begin, end, step):
 
@@ -22,9 +21,10 @@ if __name__ == "__main__":
     # begin = float(input("Введите начало отрезка x: "))
     # end = float(input("Введите конец отрезка x: "))
     # step = float(input("Введите шаг: "))
-    begin = 0
+    begin = 1
     end = 5
-    step = 0.001
+    step = 0.5
+
 
     tb = table_x_y(begin, end, step)
     tb = algorithms.one_sided(tb, step)
